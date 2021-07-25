@@ -7,7 +7,8 @@
     ></HomeAside>
     <el-container class="headerMainContainer">
       <HomeHeader @toggleCollapse='toggleCollapse'></HomeHeader>
-      <HomeMain></HomeMain>
+      <HomeMain>
+      </HomeMain>
     </el-container>
   </el-container>
 
@@ -27,10 +28,12 @@ export default {
     };
   },
   methods: {
+    // 退出登录
     loginOut() {
       window.sessionStorage.clear("token");
       this.$router.push("/login");
     },
+    // 获取左侧菜单列表数据
     getMenuList() {
       getMenuList().then((res) => {
         if (res.meta.status != 200) {
@@ -40,6 +43,7 @@ export default {
         console.log(this.menuList);
       });
     },
+    // 切换侧边栏的显示与隐藏
     toggleCollapse() {
       console.log(this.$refs.homeAside);
       this.$refs.homeAside.isCollapse = !this.$refs.homeAside.isCollapse;

@@ -3,6 +3,7 @@ import { request } from './request'
 export function getUser(config) {
   return request({
     url:'login',
+    method:'POST',
     // params:{
     //   username:config.username,
     //   password:config.password
