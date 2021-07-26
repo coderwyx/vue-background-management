@@ -12,8 +12,8 @@
       <!-- 搜索与添加区域 -->
       <el-row :gutter="30">
         <el-col :span="12">
-          <el-input placeholder="请输入内容" class="input-with-select">
-            <el-button slot="append" icon="el-icon-search"></el-button>
+          <el-input placeholder="请输入内容" v-model="queryInfo.query" clearable @clear='queryUser(queryInfo.query)'>
+            <el-button slot="append" icon="el-icon-search" @click="queryUser()"></el-button>
           </el-input>
         </el-col>
         <el-col :span="6">
@@ -49,21 +49,14 @@
       </el-table>
 
       <!-- 分页区域 -->
-      <el-pagination 
-            @size-change="handleSizeChange" 
-            @current-change="handleCurrentChange" 
-            :current-page="queryInfo.pagenum" 
-            :page-sizes="[1, 2, 5, 10]" 
-            :page-size="2" 
-            layout="total, sizes, prev, pager, next, jumper" 
-            :total='total'>
-          </el-pagination>
+      <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="queryInfo.pagenum" :page-sizes="[1, 2, 5, 10]" :page-size="2" layout="total, sizes, prev, pager, next, jumper" :total='total'>
+      </el-pagination>
     </el-card>
   </div>
 </template>
 
 <script>
-import { getUserList,changeUserState } from "network/home.js";
+import { getUserList, changeUserState } from "network/home.js";
 
 export default {
   name: "Users",
@@ -79,9 +72,10 @@ export default {
     };
   },
   methods: {
+    // 获取用户列表
     getUserList(queryInfo) {
       getUserList(queryInfo)
-        .then((res) => { 
+        .then((res) => {
           if (res.meta.status !== 200) {
             return this.$message.error(res.meta.msg);
           }
@@ -93,31 +87,47 @@ export default {
           console.log(err);
         });
     },
-    handleSizeChange(e){
+    // 改变页面显示多少条数据
+    handleSizeChange(e) {
       console.log(e);
       this.queryInfo.pagesize = e;
-      this.getUserList(this.queryInfo)
+      this.getUserList(this.queryInfo);
     },
-    handleCurrentChange(e){
+    // 改变当前显示的页数
+    handleCurrentChange(e) {
       console.log(e);
       this.queryInfo.pagenum = e;
-      this.getUserList(this.queryInfo)
-
+      this.getUserList(this.queryInfo);
     },
     // 监听switch开关状态的改变
-    userStateChanged(userInfo){
+    userStateChanged(userInfo) {
       console.log(userInfo);
       changeUserState({
-        id:userInfo.id,
-        state:userInfo.mg_state
-      }).then(res=> {
+        id: userInfo.id,
+        state: userInfo.mg_state,
+      }).then((res) => {
         console.log(res);
-        if(res.meta.status !==200){
-          userInfo.mg_state = !userInfo.mg_state
-          return this.$message.error('更新用户状态失败')
+        if (res.meta.status !== 200) {
+          userInfo.mg_state = !userInfo.mg_state;
+          return this.$message.error("更新用户状态失败");
         }
-        return this.$message.success('更新用户状态成功')
-      })
+        return this.$message.success("更新用户状态成功");
+      });
+    },
+    // 查询用户信息
+    queryUser(){
+      this.queryInfo.pagenum = 1
+      getUserList(this.queryInfo).then((res) => {
+          if (res.meta.status !== 200) {
+            return this.$message.error(res.meta.msg);
+          }
+          this.userList = res.data.users;
+          this.total = res.data.total;
+          console.log(res);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
     }
   },
   created() {
