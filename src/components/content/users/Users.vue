@@ -17,11 +17,12 @@
           </el-input>
         </el-col>
         <el-col :span="6">
-          <el-button type="primary">添加用户</el-button>
+          <el-button type="primary" @click="addDialogVisible = true">添加用户</el-button>
         </el-col>
 
       </el-row>
 
+      <!-- 用户信息表格 -->
       <el-table :data='userList' border stripe>
         <el-table-column type='index'></el-table-column>
         <el-table-column label='姓名' prop='username'></el-table-column>
@@ -52,6 +53,32 @@
       <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="queryInfo.pagenum" :page-sizes="[1, 2, 5, 10]" :page-size="2" layout="total, sizes, prev, pager, next, jumper" :total='total'>
       </el-pagination>
     </el-card>
+
+    <!-- 对话框区域 -->
+    <el-dialog title="提示" :visible.sync="addDialogVisible" width="50%">
+
+      <!-- 内容主题区域 -->
+      <el-form :model="addUserForm" :rules="addUserRules" ref="addUserRef" label-width="70px">
+        <el-form-item label="用户名" prop="username">
+          <el-input v-model="addUserForm.username"></el-input>
+        </el-form-item>
+        <el-form-item label="密码" prop="password">
+          <el-input type='password' v-model="addUserForm.password"></el-input>
+        </el-form-item>
+        <el-form-item label="邮箱" prop="email">
+          <el-input type="email" v-model="addUserForm.email"></el-input>
+        </el-form-item>
+        <el-form-item label="电话" prop="phone">
+          <el-input v-model="addUserForm.phone"></el-input>
+        </el-form-item>
+      </el-form>
+
+      <!-- 对话框底部区域 -->
+      <span slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
+        <el-button @click="dialogVisible = false">取 消</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -61,14 +88,63 @@ import { getUserList, changeUserState } from "network/home.js";
 export default {
   name: "Users",
   data() {
+    // 验证邮箱规则
+    let checkEmail = (rule, value, cb) => {
+      // 验证邮箱的正则表达式
+      const regEmail =
+        /^[A-Za-z\d]+([-_.][A-Za-z\d]+)*@([A-Za-z\d]+[-.])+[A-Za-z\d]{2,5}$/;
+
+      if (regEmail.test(value)) {
+        return cb();
+      }
+      cb(new Error("请输入合法邮箱"));
+    };
+    // 验证手机号规则
+    let checkPhone = (rule, value, cb) => {
+      const regPhone = /^1[34578]\d{9}$/;
+      if (regPhone.test(value)) {
+        return cb();
+      }
+      cb(new Error("手机号格式有误"));
+    };
     return {
+      // 获取用户列表的参数对象
       queryInfo: {
+        // 查询参数
         query: "",
+        // 当前的页数
         pagenum: 1,
+        // 当前每页显示多少条数据
         pagesize: 2,
       },
       userList: [],
       total: 0,
+      // 控制添加用户对话框的显示与隐藏
+      addDialogVisible: false,
+      addUserForm: {
+        username: "",
+        password: "",
+        email: "",
+        phone: "",
+      },
+      addUserRules: {
+        username: [
+          { required: true, message: "请输入用户名", trigger: "blur" },
+          { min: 3, max: 10, message: "用户名长度为3~10位", trigger: "blur" },
+        ],
+        password: [
+          { required: true, message: "请输入密码", trigger: "blur" },
+          { min: 6, max: 15, message: "密码长度为6~15位", trigger: "blur" },
+        ],
+        email: [
+          { required: true, message: "请输入邮箱", trigger: "blur" },
+          { validator: checkEmail, trigger: "blur" },
+        ],
+        phone: [
+          { required: true, message: "请输入电话", trigger: "blur" },
+          { validator: checkPhone, trigger: "blur" },
+        ],
+      },
     };
   },
   methods: {
@@ -115,9 +191,10 @@ export default {
       });
     },
     // 查询用户信息
-    queryUser(){
-      this.queryInfo.pagenum = 1
-      getUserList(this.queryInfo).then((res) => {
+    queryUser() {
+      this.queryInfo.pagenum = 1;
+      getUserList(this.queryInfo)
+        .then((res) => {
           if (res.meta.status !== 200) {
             return this.$message.error(res.meta.msg);
           }
@@ -128,7 +205,7 @@ export default {
         .catch((err) => {
           console.log(err);
         });
-    }
+    },
   },
   created() {
     this.getUserList(this.queryInfo);
@@ -150,5 +227,8 @@ export default {
 .el-pagination {
   margin-top: 15px;
   font-size: 12px;
+}
+.el-form {
+  padding: 0 30px;
 }
 </style>
