@@ -14,10 +14,36 @@ export function getUserList(config) {
       params:config
     })
 }
+
 // 修改用户状态数据
 export function changeUserState(config) {
   return request({
     url:`users/${config.id}/state/${config.state}`,
     method:'PUT'
+  })
+}
+
+// 添加用户数据
+export function addUser(config) {
+  return request({
+    url:'users',
+    method:'POST',
+    data:config
+  })
+}
+
+// 查询用户信息
+export function checkUserInfo(id) {
+  return request({
+    url:`users/${id}`,
+  })
+}
+
+// 修改用户信息
+export function changeUserInfo(config) {
+  return request({
+    url:`users/${config.id}`,
+    method:'PUT',
+    params:config
   })
 }

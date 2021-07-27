@@ -1,13 +1,14 @@
-import { request } from './request'
-  // 获取登录状态
+import { request } from "./request";
+// 获取登录状态
 export function getUser(config) {
   return request({
-    url:'login',
-    method:'POST',
+    url: "login",
+    method: "POST",
     // params:{
     //   username:config.username,
     //   password:config.password
     // }
-    params:config
-  })
+    data: config,
+
+  });
 }
