@@ -28,7 +28,7 @@
     <!------------------------------------------------------------------------------------------>
 
     <!----------------------------------修改用户信息对话框---------------------------------------->
-    <el-dialog title="修改用户信息" :visible.sync="changeDialogVisible" width="50%" @colse='changeDialogVisibleClose'>
+    <el-dialog title="修改用户信息" :visible.sync="changeDialogVisible" width="50%" @close='changeDialogVisibleClose'>
 
       <!-- 内容主体区域 -->
       <el-form :model="changeUserForm" :rules="addUserRules" ref="changeUserInfoRef" label-width="70px">
@@ -54,7 +54,7 @@
 </template>
 
 <script>
-import { addUser,changeUserInfo } from "network/home.js";
+import { addUser, changeUserInfo } from "network/home.js";
 
 export default {
   name: "UsersDialog",
@@ -142,22 +142,26 @@ export default {
     },
     // 点击按钮更改用户信息
     changeUserInfo() {
-      this.$refs.changeUserInfoRef.validate(valid=>{
-        if(valid){
-          
+      this.$refs.changeUserInfoRef.validate((valid) => {
+        if (valid) {
           // 验证通过可以发起修改请求
-          console.log(this.changeUserForm);
-          changeUserInfo(this.changeUserForm).then(res=> {
+          return changeUserInfo(this.changeUserForm).then((res) => {
             console.log(res);
-          })
-         return console.log(valid);
+            if(res.meta.status===200){
+              this.$message.success('修改用户信息成功');
+              this.$emit("getUserList");
+              this.changeDialogVisible = false;
+              return
+            }
+            return this.$message.error("修改用户信息失败");
+          });
         }
         console.log(valid);
-      })
-    }, 
+      });
+    },
     // 监听修改用户信息对话框关闭事件
     changeDialogVisibleClose() {
-      this.$refs.changeUserInfoRef.resetFields()
+      this.$refs.changeUserInfoRef.resetFields();
     },
   },
 };

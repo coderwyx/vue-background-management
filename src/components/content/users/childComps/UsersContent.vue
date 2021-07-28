@@ -3,7 +3,7 @@
     <!-- 搜索与添加区域 -->
     <el-row :gutter="30">
       <el-col :span="12">
-        <el-input placeholder="请输入内容" v-model="queryInfo.query" clearable @clear='queryUser(queryInfo.query)'>
+        <el-input placeholder="请输入内容" @input="queryChange()" v-model="query" clearable @clear='queryUser()'>
           <el-button slot="append" icon="el-icon-search" @click="queryUser()"></el-button>
         </el-input>
       </el-col>
@@ -32,7 +32,7 @@
           <!-- 修改按钮 -->
           <el-button type="primary" icon="el-icon-edit" size='mini' @click="changeUserInfo(scope.row.id)"></el-button>
           <!-- 删除按钮 -->
-          <el-button type="danger" icon="el-icon-delete" size='mini'></el-button>
+          <el-button type="danger" icon="el-icon-delete" size='mini' @click="delUser(scope.row.id)"></el-button>
           <!-- 分配权限按钮 -->
           <el-tooltip effect="dark" content="分配权限" placement="top" :enterable='false'>
             <el-button type="warning" icon="el-icon-setting" size='mini'></el-button>
@@ -48,11 +48,18 @@
 </template>
 
 <script>
-import { getUserList, changeUserState,checkUserInfo } from "network/home.js";
+import {
+  getUserList,
+  changeUserState,
+  checkUserInfo,
+  delUser,
+} from "network/home.js";
 export default {
   name: "UsersContent",
   data() {
     return {
+      query: "",
+
       // 获取用户列表的参数对象
       queryInfo: {
         // 查询参数
@@ -113,6 +120,7 @@ export default {
 
     // 查询用户信息
     queryUser() {
+      this.queryInfo.query = this.query;
       this.queryInfo.pagenum = 1;
       this.getUserList();
     },
@@ -122,14 +130,53 @@ export default {
     },
     // 点击按钮显示修改用户对话框
     changeUserInfo(id) {
-      checkUserInfo(id).then(res=>{
+      checkUserInfo(id).then((res) => {
         console.log(res);
-        if(res.meta.status===200){
-         return this.$emit("changeUserInfo",res.data);
+        if (res.meta.status === 200) {
+          return this.$emit("changeUserInfo", res.data);
         }
-        this.$message.error("获取用户信息失败")
+        this.$message.error("获取用户信息失败");
+      });
+    },
+    // 点击按钮删除用户
+    delUser(id) {
+      console.log(id);
+      this.$confirm("此操作将永久删除该用户, 是否继续?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
       })
-      
+        // 用户点击确定
+        .then(() => {
+          delUser(id).then((res) => {
+            if (res.meta.status === 200) {
+              this.$message({
+                type: "success",
+                message: "删除成功",
+              });
+              // 判断这个用户是不是当前页面最后一个用户
+              if ((this.total - 1) % this.queryInfo.pagesize===0&&this.queryInfo.pagenum!=1) {
+
+                this.queryInfo.pagenum -= 1;
+              }
+              this.getUserList();
+            }
+          });
+        })
+        // 用户点击取消
+        .catch(() => {
+          this.$message({
+            type: "info",
+            message: "已取消删除",
+          });
+        });
+    },
+    queryChange() {
+      console.log("1111");
+      if (this.query === "") {
+        console.log("2222");
+        (this.queryInfo.query = ""), this.getUserList();
+      }
     },
   },
 

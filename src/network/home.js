@@ -41,9 +41,22 @@ export function checkUserInfo(id) {
 
 // 修改用户信息
 export function changeUserInfo(config) {
+  console.log(config);
   return request({
     url:`users/${config.id}`,
     method:'PUT',
-    params:config
+    data:{
+      email:config.email,
+      mobile:config.mobile
+    }
+  })
+}
+
+// 删除用户
+export function delUser(id) {
+  return request({
+    url:`users/${id}`,
+    method:'DELETE',
+    
   })
 }
