@@ -68,3 +68,10 @@ export function getRightsList(type) {
     
   })
 }
+
+// 获取角色列表数据
+export function getRolesList() {
+  return request({
+    url:'roles',
+  })
+}
