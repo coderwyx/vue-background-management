@@ -5,8 +5,8 @@ const Login = () => import("components/common/login/Login");
 const Home = () => import("views/home/Home");
 const Welcome = () => import("components/content/welcome/Welcome");
 const Users = () => import("components/content/users/Users");
-const Rights = () => import("components/content/power/Rights");
-const Roles = () => import("components/content/power/Roles");
+const Rights = () => import("components/content/power/rights/Rights");
+const Roles = () => import("components/content/power/roles/Roles");
 
 Vue.use(VueRouter);
 

@@ -75,3 +75,41 @@ export function getRolesList() {
     url:'roles',
   })
 }
+
+// 添加角色
+export function addRoles(config) {
+  return request({
+    url:'roles',
+    method:'POST',
+    data:config
+  })
+}
+
+
+// 修改角色列表数据
+export function changeRolesList(config) {
+  return request({
+    url:`roles/${config.roleId}`,
+    method:'PUT',
+    data:{
+      roleName:config.roleName,
+      roleDesc:config.roleDesc
+    }
+  })
+}
+
+// 根据ID获取具体角色数据
+export function getRoles(id) {
+  return request({
+    url:`roles/${id}`,
+  })
+}
+
+// 删除角色
+export function delRoles(id) {
+  return request({
+    url:`roles/${id}`,
+    method:'DELETE',
+    
+  })
+}
