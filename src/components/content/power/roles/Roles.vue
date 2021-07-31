@@ -15,7 +15,31 @@
       <!-- 角色列表区域 -->
       <el-table :data='rolesList' border stripe>
         <!-- 展开列 -->
-        <el-table-column type='expand'></el-table-column>
+        <el-table-column type='expand'>
+          <template v-slot='scope'>
+            <el-row class="bdbottom center" :class="index===0?'bdtop':''" v-for="(item1,index) in scope.row.children" :key="item1.id">
+              <!-- 渲染一级权限 -->
+              <el-col :span='5'>
+                <el-tag>{{item1.authName}}</el-tag>
+                <i class="el-icon-caret-right"></i>
+              </el-col>
+              <!-- 渲染二级三级权限 -->
+              <el-col :span='19'>
+                <el-row class="center" :class="index===0?'':'bdtop'" v-for="(item2,index) in item1.children" :key="item2.id">
+                  <el-col :span='8'>
+                    <el-tag type='success'>{{item2.authName}}</el-tag>
+                    <i class="el-icon-caret-right"></i>
+                  </el-col>
+                  <el-col :span='16'>
+                    <el-tag type='danger' v-for="(item3) in item2.children" :key="item3.id">
+                      {{item3.authName}}
+                    </el-tag>
+                  </el-col>
+                </el-row>
+              </el-col>
+            </el-row>
+          </template>
+        </el-table-column>
         <!-- 索引列 -->
         <el-table-column type='index'></el-table-column>
         <el-table-column label='角色名称' prop='roleName'></el-table-column>
@@ -86,8 +110,8 @@ export default {
               });
               return this.getRolesList();
             }
-            this.$message.error('删除失败')
-          }); 
+            this.$message.error("删除失败");
+          });
         })
         .catch(() => {
           this.$message({
@@ -112,5 +136,18 @@ export default {
 }
 .addRoles {
   margin-bottom: 15px;
+}
+.el-tag {
+  margin: 10px;
+}
+.bdtop {
+  border-top: solid 1px #eee;
+}
+.bdbottom {
+  border-bottom: solid 1px #eee;
+}
+.center {
+  display: flex;
+  align-items: center;
 }
 </style>
