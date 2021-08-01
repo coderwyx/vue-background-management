@@ -34,8 +34,8 @@
           <!-- 删除按钮 -->
           <el-button type="danger" icon="el-icon-delete" size='mini' @click="delUser(scope.row.id)"></el-button>
           <!-- 分配权限按钮 -->
-          <el-tooltip effect="dark" content="分配权限" placement="top" :enterable='false'>
-            <el-button type="warning" icon="el-icon-setting" size='mini'></el-button>
+          <el-tooltip  effect="dark" content="分配权限" placement="top" :enterable='false'>
+            <el-button @click="showSetRightsDiaolog(scope.row)" type="warning" icon="el-icon-setting" size='mini'></el-button>
           </el-tooltip>
         </template>
       </el-table-column>
@@ -171,13 +171,16 @@ export default {
           });
         });
     },
+    // 当查询对话框为空时，重新渲染列表
     queryChange() {
-      console.log("1111");
       if (this.query === "") {
-        console.log("2222");
         (this.queryInfo.query = ""), this.getUserList();
       }
     },
+    // 点击按钮显示分配权限对话框
+    showSetRightsDiaolog(userInfo){
+      this.$emit("setRolesDialogVisible",userInfo);
+    }
   },
 
   created() {

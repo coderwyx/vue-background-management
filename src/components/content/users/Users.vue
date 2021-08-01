@@ -4,7 +4,7 @@
     <UsersBreadcrumb></UsersBreadcrumb>
 
     <!-- 卡片视图区域 -->
-    <UsersContent ref='usersContentRef' @changeUserInfo='changeUserInfo' @ChangeAddDialogVisible='ChangeAddDialogVisible'></UsersContent>
+    <UsersContent ref='usersContentRef' @setRolesDialogVisible='setRolesDialogVisible' @changeUserInfo='changeUserInfo' @ChangeAddDialogVisible='ChangeAddDialogVisible'></UsersContent>
 
     <!-- 对话框区域 -->
     <UsersDialog ref="usersDialogRef" @getUserList='getUserList'></UsersDialog>
@@ -15,6 +15,7 @@
 import UsersBreadcrumb from "components/content/users/childComps/UsersBreadcrumb.vue";
 import UsersContent from "components/content/users/childComps/UsersContent.vue";
 import UsersDialog from "components/content/users/childComps/UsersDialog.vue";
+import { getRolesList } from "network/home.js";
 export default {
   name: "Users",
   data() {
@@ -35,6 +36,18 @@ export default {
       this.$refs.usersDialogRef.changeUserForm = userInfo;
       this.$refs.usersDialogRef.changeDialogVisible = true;
     },
+    //显示分配权限对话框
+    setRolesDialogVisible(userInfo){
+      console.log(userInfo);
+      getRolesList().then(res=> {
+        if(res.meta.status===200){
+          return this.$refs.usersDialogRef.rolesList = res.data
+        }
+        this.$message.error('获取角色列表失败')
+      })
+      this.$refs.usersDialogRef.userInfo = userInfo;
+      this.$refs.usersDialogRef.setRolesDialogVisible = true;
+    }
   },
   components: {
     UsersBreadcrumb,

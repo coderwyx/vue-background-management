@@ -50,11 +50,34 @@
       </span>
     </el-dialog>
     <!------------------------------------------------------------------------------------------->
+
+    <!-- 分配角色对话框 -->
+    <el-dialog title="分配角色" :visible.sync="setRolesDialogVisible" width="50%" @close='selectedRoleId=""'>
+
+      <!-- 内容主体区域 -->
+      <div>
+        <p class="mg10">当前的用户: {{userInfo.username}}</p>
+        <p class="mg10">当前的角色: {{userInfo.role_name}}</p>
+        <p class="mg10">
+          分配新角色:
+          <el-select v-model="selectedRoleId" placeholder="请选择">
+            <el-option v-for="item in rolesList" :key="item.id" :label="item.roleName" :value="item.id">
+            </el-option>
+          </el-select>
+        </p>
+      </div>
+
+      <!-- 对话框底部区域 -->
+      <span slot="footer">
+        <el-button type="primary" @click="saveRoleInfo">确 定</el-button>
+        <el-button @click="setRolesDialogVisible = false">取 消</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
 <script>
-import { addUser, changeUserInfo } from "network/home.js";
+import { addUser, changeUserInfo, saveRoleRights } from "network/home.js";
 
 export default {
   name: "UsersDialog",
@@ -82,7 +105,9 @@ export default {
       // 控制对话框显示
       addDialogVisible: false,
       changeDialogVisible: false,
-
+      setRolesDialogVisible: false,
+      // 以选中的角色信息
+      selectedRoleId: "",
       //  添加用户规则
       addUserRules: {
         username: [
@@ -102,17 +127,22 @@ export default {
           { validator: checkPhone, trigger: "blur" },
         ],
       },
+      // 添加用户对话框表单对象
       addUserForm: {
         username: "",
         password: "",
         email: "",
         mobile: "",
       },
+      // 编辑用户资料对话框表单对象
       changeUserForm: {
         username: "",
         email: "",
         mobile: "",
       },
+      // 用户信息
+      userInfo: {},
+      rolesList: {},
     };
   },
   methods: {
@@ -147,11 +177,11 @@ export default {
           // 验证通过可以发起修改请求
           return changeUserInfo(this.changeUserForm).then((res) => {
             console.log(res);
-            if(res.meta.status===200){
-              this.$message.success('修改用户信息成功');
+            if (res.meta.status === 200) {
+              this.$message.success("修改用户信息成功");
               this.$emit("getUserList");
               this.changeDialogVisible = false;
-              return
+              return;
             }
             return this.$message.error("修改用户信息失败");
           });
@@ -163,9 +193,27 @@ export default {
     changeDialogVisibleClose() {
       this.$refs.changeUserInfoRef.resetFields();
     },
+    // 点击按钮分配角色
+    saveRoleInfo() {
+      if (!this.selectedRoleId) {
+        return this.$message.error("请选择要分配的角色");
+      };
+      saveRoleRights(this.userInfo.id, this.selectedRoleId).then((res) => {
+        console.log(res);
+        if (res.meta.status === 200) {
+          this.$message.success("分配角色成功");
+          this.$emit("getUserList");
+          this.setRolesDialogVisible = false;
+        }
+      });
+    },
   },
 };
 </script>
 
 <style scoped>
+.mg10 {
+  margin: 20px;
+  font-size: 16px;
+}
 </style>

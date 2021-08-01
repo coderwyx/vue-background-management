@@ -113,3 +113,32 @@ export function delRoles(id) {
     
   })
 }
+
+// 删除角色对应权限
+export function removeRolesRights(roleId,rightId) {
+  return request({
+    url:`roles/${roleId}/rights/${rightId}`,
+    method:'DELETE',
+    
+  })
+}
+
+// 为角色分配权限
+export function setRoleRights(roleId,rids) {
+  return request({
+    url:`roles/${roleId}/rights`,
+    method:'POST',
+    data:{rids}
+    
+  })
+}
+
+// 为用户分配角色
+export function saveRoleRights(id,rid) {
+  return request({
+    url:`users/${id}/role`,
+    method:'PUT',
+    data:{rid}
+    
+  })
+}

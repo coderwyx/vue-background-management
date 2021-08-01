@@ -38,11 +38,23 @@
         <el-button @click="rolesDialogVisible = false">取 消</el-button>
       </span>
     </el-dialog>
+
+    <!-- 分配权限对话框 -->
+    <el-dialog title="分配权限" :visible.sync="setRightsDialogVisible" @close='defaultKeys=[]'>
+      <!-- 内容主体区域 -->
+      <!-- 树形控件 -->
+     <el-tree ref="treeRef" :default-checked-keys='defaultKeys' show-checkbox default-expand-all node-key='id' :data="rightsList" :props="treeProps" ></el-tree>
+      <!-- 对话框底部区域 -->
+      <span slot="footer">
+        <el-button type="primary" @click="setRights">确 定</el-button>
+        <el-button @click="setRightsDialogVisible = false">取 消</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
 <script>
-import { addRoles,changeRolesList } from "network/home.js";
+import { addRoles,changeRolesList,setRoleRights } from "network/home.js";
 
 export default {
   name: "RolesDialog",
@@ -52,6 +64,8 @@ export default {
       addDialogVisible: false,
       // 控制编辑角色对话框
       rolesDialogVisible: false,
+      // 控制分配权限对话框
+      setRightsDialogVisible:false,
       // 添加角色对话框表单
       addRolesForm: {
         roleName: "",
@@ -62,6 +76,7 @@ export default {
         roleName: "",
         roleDesc: "",
       },
+      //角色列表数据规则
       addRolesRules: {
         roleName: [
           { required: true, message: "请输入角色名称", trigger: "blur" },
@@ -70,6 +85,15 @@ export default {
           { required: true, message: "请输入角色描述", trigger: "blur" },
         ],
       },
+      // 权限列表
+      rightsList:[],
+      treeProps:{
+        label:'authName',
+        children:'children'
+      },
+      defaultKeys:[],
+      roleId:''
+
     };
   },
   methods: {
@@ -95,12 +119,29 @@ export default {
     rolesDialogVisibleClose() {
       this.$refs.rolesRef.resetFields();
     },
+    // 修改角色列表数据
     changeRoles(){
       changeRolesList(this.rolesForm).then(res=> {
         if(res.meta.status === 200){
           this.$message.success('修改成功');
           this.rolesDialogVisible = false;
           return this.$emit('getRolesList')
+        }
+      })
+    },
+    // 给角色分配权限
+    setRights(){
+      let keys = [
+        ...this.$refs.treeRef.getCheckedKeys(),
+        ...this.$refs.treeRef.getHalfCheckedKeys()
+      ];
+      const idStr =  keys.join(',')
+      // console.log(this.roleId,idStr);
+      setRoleRights(this.roleId,idStr).then(res=> {
+        if(res.meta.status === 200){
+          this.$message.success('分配权限成功');
+          this.$emit("getRolesList");
+          this.setRightsDialogVisible = false;
         }
       })
     }
